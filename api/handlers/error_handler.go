@@ -11,9 +11,11 @@ func HandleError(err error, w http.ResponseWriter) {
 	case errors.NotFoundError:
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte(e.Error()))
+		return
 	case errors.DecodeError:
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(e.Error()))
+		return
 
 	default:
 

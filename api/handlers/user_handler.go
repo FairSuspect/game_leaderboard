@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"unicode/utf8"
 )
 
 type UserHandler struct {
@@ -31,6 +32,11 @@ func (uh *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	// Проверяем пустое тело запроса
+	if len(body) == 0 {
+		http.Error(w, "Request body is empty", http.StatusBadRequest)
+		return
+	}
 	// Декодируем JSON в структуру User
 	var user models.User
 	err = json.Unmarshal(body, &user)
@@ -44,6 +50,12 @@ func (uh *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request)
 		HandleError(err, w)
 		return
 	}
+	if utf8.RuneCountInString(*user.Name) < 2 {
+		errorMsg := errors.New("Name length must at least 2 characters")
+		err := api_errors.DecodeError{Err: errorMsg}
+		HandleError(err, w)
+		return
+	}
 	createdUser, err := uh.userRepository.CreateUser(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -52,10 +64,11 @@ func (uh *UserHandler) CreateUserHandler(w http.ResponseWriter, r *http.Request)
 
 	jsonData, err := json.MarshalIndent(createdUser, "", "	")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		http.Error(w, "Failed to encode user", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to encode user", http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	w.Write(jsonData)
 
