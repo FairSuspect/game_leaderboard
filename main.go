@@ -44,11 +44,15 @@ func main() {
 
 	r := mux.NewRouter()
 	userRepository := repository.NewUserRepository(db)
+	gameRepository := repository.NewGameRepository(db)
+	leaderboardRepository := repository.NewLeaderboardRepository(db)
 
 	// Инициализация маршрутизатора
 
 	// Регистрация обработчиков
 	endpoints.RegisterUserEndpoints(r, userRepository)
+	endpoints.RegisterGameEndpoints(r, gameRepository)
+	endpoints.RegisterLeaderboardEndpoints(r, leaderboardRepository)
 
 	// r.HandleFunc("/users", userHandler.usersRouteHandler).Methods("GET", "POST")
 	// r.HandleFunc("/user/{id}", userHandler.userRouteHandler).Methods("GET", "PUT")

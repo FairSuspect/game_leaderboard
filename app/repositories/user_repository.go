@@ -70,7 +70,7 @@ func (ur *userRepository) GetUserByID(id int) (*models.User, error) {
 	err := ur.db.QueryRow("SELECT id, name FROM users WHERE id = $1", id).Scan(&user.ID, &user.Name)
 	if err != nil {
 		log.Println("Failed to get user by ID:", err)
-		return nil, api_errors.NotFoundError{UserId: id}
+		return nil, api_errors.NotFoundError{Id: id}
 	}
 	return &user, nil
 }
@@ -78,7 +78,7 @@ func (ur *userRepository) DeleteUser(id int) error {
 	_, err := ur.db.Exec("DELETE FROM users WHERE id = $1", id)
 	if err != nil {
 		log.Println("Failed to get user by ID:", err)
-		return api_errors.NotFoundError{UserId: id}
+		return api_errors.NotFoundError{Id: id}
 	}
 	return nil
 }
