@@ -17,9 +17,10 @@ type LeaderboardHandler struct {
 }
 
 func NewLeaderboardHandler(leaderboardRepository repository.LeaderboardRepository) *LeaderboardHandler {
-	return &LeaderboardHandler{
-		leaderboardRepository: leaderboardRepository,
-	}
+	// Создание объекта с начальными значениями (выделение памяти)
+	leaderboardHandler := new(LeaderboardHandler)
+	leaderboardHandler.leaderboardRepository = leaderboardRepository
+	return leaderboardHandler
 }
 
 func (uh *LeaderboardHandler) CreateLeaderboardHandler(w http.ResponseWriter, r *http.Request) {
