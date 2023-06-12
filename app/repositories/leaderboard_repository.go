@@ -12,7 +12,7 @@ type leaderboardRepository struct {
 
 // LeaderboardRepository представляет интерфейс для работы с пользователями в базе данных.
 type LeaderboardRepository interface {
-	GetGameLeaderboard(gameId int) (*models.GameLeaderboard, error)
+	GetGameLeaderboard(gameId int, page int, page_size int) (*models.GameLeaderboard, error)
 	GetUserLeaderboard(userId int) (*[]models.UserLeaderboard, error)
 	AddRecord(models.LeaderboardEntry) error
 }
@@ -23,16 +23,17 @@ func NewLeaderboardRepository(db *sql.DB) LeaderboardRepository {
 	}
 }
 
-func (lr *leaderboardRepository) GetGameLeaderboard(gameId int) (*models.GameLeaderboard, error) {
+func (lr *leaderboardRepository) GetGameLeaderboard(gameId int, page int, page_size int) (*models.GameLeaderboard, error) {
 	var gameName string
-	gameQuery := "SELECT name FROM games WHERE id = $1"
+	gameQuery := "SELECT name FROM games WHERE id = $1 "
 	err := lr.db.QueryRow(gameQuery, gameId).Scan(&gameName)
 	if err != nil {
 		return nil, err
 	}
 
-	query := "SELECT users.name, score from leaderboard LEFT JOIN users ON users.id = user_id WHERE game_id = $1 ORDER BY score DESC;"
-	rows, err := lr.db.Query(query, gameId)
+	offset := page_size * (page - 1)
+	query := "SELECT users.name, score FROM leaderboard LEFT JOIN users ON users.id = user_id WHERE game_id = $1 ORDER BY score DESC LIMIT $2 OFFSET $3;"
+	rows, err := lr.db.Query(query, gameId, page_size, offset)
 	if err != nil {
 		return nil, err
 	}

@@ -19,7 +19,7 @@ type userRepository struct {
 
 // UserRepository представляет интерфейс для работы с пользователями в базе данных.
 type UserRepository interface {
-	GetAllUsers() (*[]models.User, error)
+	GetAllUsers(page int, page_size int) (*[]models.User, error)
 	GetUserByID(id int) (*models.User, error)
 	CreateUser(user models.User) (*models.User, error)
 	EditUser(user models.User) (*models.User, error)
@@ -82,9 +82,11 @@ func (ur *userRepository) DeleteUser(id int) error {
 	}
 	return nil
 }
-func (ur *userRepository) GetAllUsers() (*[]models.User, error) {
-	query := "SELECT id, name FROM users ORDER BY id"
-	rows, err := ur.db.Query(query)
+func (ur *userRepository) GetAllUsers(page int, page_size int) (*[]models.User, error) {
+	offset := page_size * (page - 1)
+
+	query := "SELECT id, name FROM users ORDER BY id LIMIT $1 OFFSET $2"
+	rows, err := ur.db.Query(query, page_size, offset)
 	if err != nil {
 		return nil, err
 	}

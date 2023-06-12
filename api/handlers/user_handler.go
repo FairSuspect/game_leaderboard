@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"unicode/utf8"
 )
 
@@ -102,7 +103,17 @@ func (uh *UserHandler) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (uh *UserHandler) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
-	users, err := uh.userRepository.GetAllUsers()
+	queryParams := r.URL.Query()
+	page, err := strconv.Atoi(queryParams.Get("page"))
+	if err != nil {
+		page = 1
+	}
+
+	page_size, err := strconv.Atoi(queryParams.Get("pageSize"))
+	if err != nil {
+		page_size = 10
+	}
+	users, err := uh.userRepository.GetAllUsers(page, page_size)
 	if err != nil {
 		log.Println("Failed to get users:", err)
 		http.Error(w, "Failed to get users", http.StatusInternalServerError)

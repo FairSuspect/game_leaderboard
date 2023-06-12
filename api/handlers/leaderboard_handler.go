@@ -10,6 +10,7 @@ import (
 	repository "game_leaderboards/m/v2/app/repositories"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 type LeaderboardHandler struct {
@@ -67,8 +68,18 @@ func (uh *LeaderboardHandler) GetGameLeaderboardHandler(w http.ResponseWriter, r
 	if shouldReturn {
 		return
 	}
+	queryParams := r.URL.Query()
+	page, err := strconv.Atoi(queryParams.Get("page"))
+	if err != nil {
+		page = 1
+	}
 
-	leaderboard, err := uh.leaderboardRepository.GetGameLeaderboard(id)
+	page_size, err := strconv.Atoi(queryParams.Get("pageSize"))
+	if err != nil {
+		page_size = 10
+	}
+
+	leaderboard, err := uh.leaderboardRepository.GetGameLeaderboard(id, page, page_size)
 	if err != nil {
 		HandleError(err, w)
 		return
