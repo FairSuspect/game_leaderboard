@@ -50,6 +50,7 @@ func main() {
 	endpoints.RegisterUserEndpoints(r, userRepository)
 	endpoints.RegisterGameEndpoints(r, gameRepository)
 	endpoints.RegisterLeaderboardEndpoints(r, leaderboardRepository)
+	endpoints.RegisterChatEndpoints(r)
 
 	// r.HandleFunc("/users", userHandler.usersRouteHandler).Methods("GET", "POST")
 	// r.HandleFunc("/user/{id}", userHandler.userRouteHandler).Methods("GET", "PUT")
